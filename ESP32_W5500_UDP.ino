@@ -25,10 +25,11 @@ int servoPin = 13;
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
-IPAddress ip(192, 168, 0, 20);
+// IPAddress ip(192, 168, 0, 20);
+IPAddress ip(172, 25, 9, 30);  //XH
 IPAddress ip1(230, 1, 2, 3);
 
-unsigned int localPort = 8888;      // local port to listen on
+unsigned int localPort = 2300;      // local port to listen on
 int count = 0;
 
 // buffers for receiving and sending data
@@ -69,13 +70,13 @@ void setup() {
       delay(1); // do nothing, no point running without Ethernet hardware
     }
   }
-  if (Ethernet.linkStatus() == LinkOFF) {
+  if (Ethernet.linkStatus() == LinkOFF) {  
     Serial.println("Ethernet cable is not connected.");
   }
 
   // start UDP
 //  Udp.begin(localPort);
-  Udp.beginMulticast(ip1, 2300);
+  Udp.beginMulticast(ip1, 23302);
 }
 
 void loop() {
@@ -99,11 +100,11 @@ void loop() {
     Serial.println(Udp.remotePort());
 
     // read the packet into packetBufffer
-    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    Serial.println("Contents:");
-    Serial.println(packetBuffer);
+    // Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+    // Serial.println("Contents:");
+    // Serial.println(packetBuffer);
 
-    myservo.write(packetBuffer[0]);
+    // myservo.write(packetBuffer[0]);
 
     // send a reply to the IP address and port that sent us the packet we received
 //    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
