@@ -27,19 +27,30 @@ byte mac[] = {
 };
 // IPAddress ip(192, 168, 0, 20);
 IPAddress ip(172, 25, 9, 30);  //XH
-IPAddress ip1(230, 1, 2, 3);
+// IPAddress ip1(230, 1, 2, 3); 
+IPAddress ip1(172,25,9,61);
 
 unsigned int localPort = 2300;      // local port to listen on
 int count = 0;
+int count_temp = 0;
 
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
-char ReplyBuffer[] = "acknowledged";        // a string to send back
+byte  ReplyBuffer[128];        // a string to send back
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
 
+long Recv_Packet_Count = 0;
+
 void setup() {
+
+  for(int i=0; i<128; i++)
+  {
+    ReplyBuffer[i] = 0x00;
+  }
+  ReplyBuffer[96] = 0x54;
+
 
   myservo.setPeriodHertz(50);    // standard 50 hz servo
   myservo.attach(servoPin, 500, 2500); // attaches the servo on pin 18 to the servo object
@@ -75,29 +86,34 @@ void setup() {
   }
 
   // start UDP
-//  Udp.begin(localPort);
-  Udp.beginMulticast(ip1, 23302);
+ Udp.begin(23302);
+  // Udp.beginMulticast(ip1, 23302);
 }
 
 void loop() {
 
   count =  count + 1;
+  count_temp =  count_temp + 1;
   
   // if there's data available, read a packet
   int packetSize = Udp.parsePacket();
   if (packetSize) {
-    Serial.print("Received packet of size ");
-    Serial.println(packetSize);
-    Serial.print("From ");
-    IPAddress remote = Udp.remoteIP();
-    for (int i=0; i < 4; i++) {
-      Serial.print(remote[i], DEC);
-      if (i < 3) {
-        Serial.print(".");
-      }
-    }
-    Serial.print(", port ");
-    Serial.println(Udp.remotePort());
+
+    Recv_Packet_Count = Recv_Packet_Count + 1;
+
+    //@-网络数据包信息
+    // Serial.print("Received packet of size ");
+    // Serial.println(packetSize);
+    // Serial.print("From ");
+    // IPAddress remote = Udp.remoteIP();
+    // for (int i=0; i < 4; i++) {
+    //   Serial.print(remote[i], DEC);
+    //   if (i < 3) {
+    //     Serial.print(".");
+    //   }
+    // }
+    // Serial.print(", port ");
+    // Serial.println(Udp.remotePort());
 
     // read the packet into packetBufffer
     // Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
@@ -112,15 +128,22 @@ void loop() {
 //    Udp.endPacket();
   }
 
-  if(count > 100)
+  if(count > 10)
   {
     count = 0;
     // send a reply to the IP address and port that sent us the packet we received
-    Udp.beginPacket(ip1, 2311);
-    Udp.write(ReplyBuffer);
+    Udp.beginPacket(ip1, 23602);
+    // Udp.write(ReplyBuffer);  //write str
+    Udp.write(ReplyBuffer,128);  //write byte
     Udp.endPacket();  
+  }
 
-    Serial.println("send");
+  if(count_temp > 200)
+  {
+    count_temp = 0;
+
+    Serial.print("Recv:");
+    Serial.println(Recv_Packet_Count);
   }
   
   delay(5);
