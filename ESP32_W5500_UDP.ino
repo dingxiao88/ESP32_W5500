@@ -94,6 +94,8 @@ void loop() {
 
   count =  count + 1;
   count_temp =  count_temp + 1;
+
+  myservo.write(180);
   
   // if there's data available, read a packet
   int packetSize = Udp.parsePacket();
